@@ -2,30 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>ARVOX RACING</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#09121d;color:white;font-family:Arial}
-canvas{display:block}
-button,select{padding:12px;border:0;border-radius:8px;background:#14bde9;color:#06131d;font-weight:bold;margin:5px}
-button{cursor:pointer}
-#menu{position:absolute;inset:0;z-index:5;background:linear-gradient(130deg,#08111cee,#152e43ee);display:flex;justify-content:center;align-items:center;overflow:auto}
-.panel{background:#14283b;padding:22px;border:1px solid #34536b;border-radius:16px;width:min(92%,440px);text-align:center;margin:20px}
-h1{font-size:36px;color:#25ceff;letter-spacing:4px}
+body{margin:0;background:#08121e;color:white;font-family:Arial;overflow:hidden}
+canvas{position:fixed;inset:0;z-index:0;display:block}
+button{border:0;border-radius:9px;background:#16c7ef;color:#06131d;font-weight:bold;padding:13px;margin:5px;cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
+#menu{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;overflow:auto;background:linear-gradient(130deg,#08111cee,#152e43ee)}
+.panel{background:#14283b;padding:20px;border:1px solid #34536b;border-radius:16px;width:min(94%,460px);text-align:center;margin:20px}
+h1{font-size:34px;color:#25ceff;letter-spacing:3px}
 h2{color:#28c9f3}
 .page{display:none}
 .page.active{display:block}
-.level{background:#213b51;padding:12px;border-radius:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:5px}
-.locked{opacity:.4}
-#hud{position:absolute;top:10px;left:10px;right:10px;display:none;pointer-events:none}
+.level{background:#213b51;padding:10px;border-radius:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:5px}
+.level small{color:#b5cbd9}
+#hud{position:absolute;z-index:8;top:8px;left:8px;right:8px;display:none;pointer-events:none}
 .info{background:#071521dd;padding:10px;border-radius:8px;display:inline-block;margin:3px}
 #camera{float:right;pointer-events:auto}
-#controls{position:absolute;bottom:15px;left:0;right:0;display:none;justify-content:space-between;padding:12px}
-#controls button{width:65px;height:65px;border-radius:50%;font-size:20px;touch-action:none}
-#message{position:absolute;top:42%;width:100%;text-align:center;font-size:26px;font-weight:bold;pointer-events:none}
+#controls{position:absolute;z-index:9;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:8px;pointer-events:none}
+#controls button{width:65px;height:65px;border-radius:50%;font-size:20px;touch-action:none;pointer-events:auto;opacity:.9}
+#message{position:absolute;z-index:10;top:42%;width:100%;text-align:center;font-size:26px;font-weight:bold;pointer-events:none;text-shadow:0 2px 5px black}
 #result{position:absolute;inset:0;z-index:12;display:none;align-items:center;justify-content:center;background:#071521dd}
-small{color:#a9c3d6}
+#paint{width:55px;height:35px;vertical-align:middle}
+#notice{position:absolute;z-index:20;bottom:5px;left:5px;right:5px;text-align:center;color:#ffd56a;font-size:12px;pointer-events:none}
 </style>
 </head>
 <body>
@@ -36,41 +37,41 @@ small{color:#a9c3d6}
 <p>3D HIGHWAY CAREER</p>
 
 <div id="home" class="page active">
-<h2>Welcome Racer</h2>
-<p>Complete races. Earn cash. Build your dream car.</p>
+<h2>WELCOME RACER</h2>
+<p>Race. Earn cash. Build your dream car.</p>
 <p>💰 $<b id="money">1000</b></p>
 <p>🏆 Career Level <b id="rank">1</b></p>
-<button onclick="page('career')">CAREER MODE</button>
-<button onclick="page('garage')">GARAGE</button>
-<button onclick="page('upgrades')">UPGRADES</button>
+<button data-page="career">CAREER MODE</button>
+<button data-page="garage">GARAGE</button>
+<button data-page="upgrades">UPGRADES</button>
 </div>
 
 <div id="career" class="page">
 <h2>CAREER MISSIONS</h2>
 <div id="levels"></div>
-<button onclick="page('home')">BACK</button>
+<button data-page="home">BACK</button>
 </div>
 
 <div id="garage" class="page">
 <h2>YOUR GARAGE</h2>
 <h1 id="carname">ARV-X1</h1>
 <p id="carstatus"></p>
-<button onclick="changeCar(-1)">◀</button>
-<button onclick="changeCar(1)">▶</button>
+<button data-action="previous-car">◀</button>
+<button data-action="next-car">▶</button>
 <p>Paint <input type="color" id="paint" value="#e51b35"></p>
-<button onclick="selectCar()">SELECT / BUY</button>
-<button onclick="page('home')">BACK</button>
+<button data-action="select-car">SELECT / BUY</button>
+<button data-page="home">BACK</button>
 </div>
 
 <div id="upgrades" class="page">
 <h2>CAR UPGRADES</h2>
 <p>Engine: <b id="engine">1</b>/5</p>
-<button onclick="upgrade('engine')">UPGRADE ENGINE $500</button>
+<button data-upgrade="engine">UPGRADE ENGINE $500</button>
 <p>Handling: <b id="handling">1</b>/5</p>
-<button onclick="upgrade('handling')">UPGRADE HANDLING $500</button>
+<button data-upgrade="handling">UPGRADE HANDLING $500</button>
 <p>Brakes: <b id="brakes">1</b>/5</p>
-<button onclick="upgrade('brakes')">UPGRADE BRAKES $500</button>
-<button onclick="page('home')">BACK</button>
+<button data-upgrade="brakes">UPGRADE BRAKES $500</button>
+<button data-page="home">BACK</button>
 </div>
 </div>
 </div>
@@ -79,26 +80,38 @@ small{color:#a9c3d6}
 <div class="info">SPEED <b id="speed">0</b> KM/H</div>
 <div class="info">DISTANCE <b id="distance">0</b> M</div>
 <div class="info">LEVEL <b id="levelhud">1</b></div>
-<button id="camera">CAMERA</button>
+<button id="camera" data-action="camera">CAMERA</button>
 </div>
+
 <div id="message"></div>
+
 <div id="controls">
-<div><button id="left">◀</button><button id="right">▶</button></div>
-<div><button id="brake">B</button><button id="gas">G</button></div>
+<div>
+<button id="left">◀</button>
+<button id="right">▶</button>
+</div>
+<div>
+<button id="brake">B</button>
+<button id="gas">G</button>
+</div>
 </div>
 
 <div id="result">
 <div class="panel">
 <h1 id="resulttitle">RACE COMPLETE</h1>
 <p id="resulttext"></p>
-<button onclick="backToCareer()">CONTINUE</button>
+<button data-action="continue">CONTINUE</button>
 </div>
 </div>
+
+<div id="notice"></div>
 
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 
-const missions=[
+const $ = id => document.getElementById(id);
+
+const missions = [
 {name:'First Drive',type:'distance',target:500,reward:500},
 {name:'Speed Hunter',type:'speed',target:150,reward:800},
 {name:'Highway Runner',type:'distance',target:1000,reward:1000},
@@ -111,246 +124,386 @@ const missions=[
 {name:'Champion',type:'distance',target:5000,reward:5000}
 ];
 
-const carNames=['ARV-X1','ARV-SPORT','ARV-GT','ARV-RS','ARV-MAX','ARV-TURBO','ARV-ROADSTER','ARV-COUPE','ARV-EXTREME','ARV-LEGEND'];
-const prices=[0,1500,2500,4000,5500,7000,9000,11000,14000,18000];
+const carNames = [
+'ARV-X1','ARV-SPORT','ARV-GT','ARV-RS','ARV-MAX',
+'ARV-TURBO','ARV-ROADSTER','ARV-COUPE','ARV-EXTREME','ARV-LEGEND'
+];
+const prices = [0,1500,2500,4000,5500,7000,9000,11000,14000,18000];
 
-let data=JSON.parse(localStorage.getItem('arvox3D'))||{
-money:1000,unlocked:1,car:0,cars:[0],engine:1,handling:1,brakes:1,completed:[]
-};
-let selected=0,level=1;
-function save(){localStorage.setItem('arvox3D',JSON.stringify(data));update();}
-function update(){
-document.getElementById('money').textContent=data.money;
-document.getElementById('rank').textContent=data.unlocked;
-['engine','handling','brakes'].forEach(x=>document.getElementById(x).textContent=data[x]);
-renderLevels();
+let data;
+try {
+data = JSON.parse(localStorage.getItem('arvox3D')) || null;
+} catch(e) { data = null; }
+
+if(!data) {
+data = {money:1000,unlocked:1,car:0,cars:[0],engine:1,handling:1,brakes:1,completed:[]};
 }
-function page(id){
-document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+data.money = Number(data.money) || 0;
+data.unlocked = Math.max(1,Number(data.unlocked)||1);
+data.cars = Array.isArray(data.cars)?data.cars:[0];
+data.completed = Array.isArray(data.completed)?data.completed:[];
+
+let selected = data.car || 0;
+let level = 1;
+let speed = 0, distance = 0, elapsed = 0;
+let active = false, camMode = 0, x = 0;
+let gas = false, brake = false, steer = 0;
+const keys = {};
+
+function save() {
+localStorage.setItem('arvox3D',JSON.stringify(data));
+update();
 }
-function renderLevels(){
-document.getElementById('levels').innerHTML=missions.map((m,i)=>{
-let n=i+1,done=data.completed.includes(n),open=n<=data.unlocked;
-return `<div class="level ${open?'':'locked'}">
+
+function page(id) {
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+$(id).classList.add('active');
+}
+
+function renderLevels() {
+$('levels').innerHTML = missions.map((m,i)=>{
+const n=i+1;
+const done=data.completed.includes(n);
+const open=n<=data.unlocked;
+return `<div class="level">
 <div><b>LEVEL ${n}</b><br><small>${m.name} · Reward $${m.reward}</small></div>
-<button ${!open||done?'disabled':''} onclick="startRace(${n})">${done?'DONE':open?'RACE':'LOCKED'}</button>
+<button data-race="${n}" ${!open||done?'disabled':''}>${done?'DONE':open?'RACE':'LOCKED'}</button>
 </div>`;
 }).join('');
 }
-function changeCar(d){
-selected=(selected+d+10)%10;
-document.getElementById('carname').textContent=carNames[selected];
-document.getElementById('carstatus').textContent=data.cars.includes(selected)?'OWNED':'Price: $'+prices[selected];
-}
-function selectCar(){
-if(!data.cars.includes(selected)){
-if(data.money<prices[selected])return alert('Not enough money!');
-data.money-=prices[selected];data.cars.push(selected);
-}
-data.car=selected;save();alert('Car selected!');changeCar(0);
-}
-function upgrade(type){
-if(data[type]>=5)return alert('Maximum level!');
-if(data.money<500)return alert('Not enough money!');
-data.money-=500;data[type]++;save();
-}
-window.page=page;
-window.changeCar=changeCar;
-window.selectCar=selectCar;
-window.upgrade=upgrade;
-window.startRace=startRace;
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x87b8da);
-scene.fog=new THREE.Fog(0x87b8da,100,450);
-const camera3=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,1000);
-const renderer=new THREE.WebGLRenderer({antialias:true});
+function update() {
+$('money').textContent=data.money;
+$('rank').textContent=data.unlocked;
+['engine','handling','brakes'].forEach(k=>$(k).textContent=data[k]);
+renderLevels();
+}
+
+function showCar() {
+$('carname').textContent=carNames[selected];
+$('carstatus').textContent=data.cars.includes(selected)?'OWNED':'Price: $'+prices[selected];
+$('paint').value=data.paint || '#e51b35';
+}
+function changeCar(d) {
+selected=(selected+d+carNames.length)%carNames.length;
+showCar();
+}
+function selectCar() {
+if(!data.cars.includes(selected)) {
+if(data.money<prices[selected]) { alert('Not enough money!'); return; }
+data.money-=prices[selected];
+data.cars.push(selected);
+}
+data.car=selected;
+data.paint=$('paint').value;
+save();
+showCar();
+alert('Car selected!');
+}
+function upgrade(type) {
+if(data[type]>=5) { alert('Maximum level!'); return; }
+if(data.money<500) { alert('Not enough money!'); return; }
+data.money-=500;
+data[type]++;
+save();
+}
+
+function material(color,roughness=.65) {
+return new THREE.MeshStandardMaterial({color,roughness});
+}
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87b8da);
+scene.fog = new THREE.Fog(0x87b8da,100,450);
+
+const camera3 = new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,1000);
+const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.domElement.style.touchAction='none';
 document.body.appendChild(renderer.domElement);
+
 scene.add(new THREE.HemisphereLight(0xffffff,0x506040,2));
 const sunlight=new THREE.DirectionalLight(0xffffff,2);
-sunlight.position.set(-30,60,20);scene.add(sunlight);
+sunlight.position.set(-30,60,20);
+scene.add(sunlight);
 
-const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.65});
-const grass=material(0x40824c),asphalt=material(0x30343a),white=material(0xffffff);
+const grass=material(0x40824c);
+const asphalt=material(0x30343a);
+const white=material(0xffffff);
+
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),grass);
-ground.rotation.x=-Math.PI/2;ground.position.y=-.15;scene.add(ground);
-const road=new THREE.Mesh(new THREE.PlaneGeometry(20,1500),asphalt);
-road.rotation.x=-Math.PI/2;road.position.z=-500;scene.add(road);
+ground.rotation.x=-Math.PI/2;
+ground.position.y=-.15;
+scene.add(ground);
 
-for(let x of [-9.5,9.5]){
+const road=new THREE.Mesh(new THREE.PlaneGeometry(20,1500),asphalt);
+road.rotation.x=-Math.PI/2;
+road.position.z=-500;
+scene.add(road);
+
+for(const edgeX of [-9.5,9.5]) {
 const edge=new THREE.Mesh(new THREE.BoxGeometry(.2,.05,1500),white);
-edge.position.set(x,.03,-500);scene.add(edge);
+edge.position.set(edgeX,.03,-500);
+scene.add(edge);
 }
-for(let x of [-3.3,3.3])for(let z=-1200;z<200;z+=18){
-const line=new THREE.Mesh(new THREE.BoxGeometry(.12,.04,8),material(0xffd532));
-line.position.set(x,.04,z);scene.add(line);
+
+const yellow=material(0xffd532);
+for(const laneX of [-3.3,3.3]) {
+for(let z=-1200;z<200;z+=18) {
+const line=new THREE.Mesh(new THREE.BoxGeometry(.12,.04,8),yellow);
+line.position.set(laneX,.04,z);
+scene.add(line);
+}
 }
 
 const trees=[];
-for(let i=0;i<70;i++)for(let side of [-1,1]){
+for(let i=0;i<70;i++) {
+for(const side of [-1,1]) {
 const tree=new THREE.Group();
 const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.3,.4,3,7),material(0x67452c));
-trunk.position.y=1.5;tree.add(trunk);
+trunk.position.y=1.5;
+tree.add(trunk);
 const top=new THREE.Mesh(new THREE.ConeGeometry(2,5,8),material(0x176d39));
-top.position.y=5;tree.add(top);
+top.position.y=5;
+tree.add(top);
 tree.position.set(side*(14+Math.random()*15),0,-i*20);
-scene.add(tree);trees.push(tree);
+scene.add(tree);
+trees.push(tree);
+}
 }
 
-function makeCar(color,index){
+function makeCar(color,index) {
 const group=new THREE.Group();
 const body=new THREE.Mesh(new THREE.BoxGeometry(2.1,.65,4.1),material(color));
-body.position.y=.8;group.add(body);
+body.position.y=.8;
+group.add(body);
+
 const hood=new THREE.Mesh(new THREE.BoxGeometry(1.95,.25,1.25),material(color));
-hood.position.set(0,1.15,-1.3);group.add(hood);
-const glass=new THREE.Mesh(new THREE.BoxGeometry(1.55,.85,1.9),new THREE.MeshStandardMaterial({color:0x142d40,metalness:.2,roughness:.2}));
-glass.position.set(0,1.48,.1);group.add(glass);
+hood.position.set(0,1.15,-1.3);
+group.add(hood);
+
+const glass=new THREE.Mesh(
+new THREE.BoxGeometry(1.55,.85,1.9),
+new THREE.MeshStandardMaterial({color:0x142d40,metalness:.2,roughness:.2})
+);
+glass.position.set(0,1.48,.1);
+group.add(glass);
+
 const roof=new THREE.Mesh(new THREE.BoxGeometry(1.5,.12,1.65),material(color));
-roof.position.set(0,1.93,.1);group.add(roof);
-for(let x of [-.72,.72]){
-for(let z of [-1.35,1.35]){
+roof.position.set(0,1.93,.1);
+group.add(roof);
+
+for(const wheelX of [-.72,.72]) {
+for(const wheelZ of [-1.35,1.35]) {
 const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.28,16),material(0x101010));
-wheel.rotation.z=Math.PI/2;wheel.position.set(x,.43,z);group.add(wheel);
+wheel.rotation.z=Math.PI/2;
+wheel.position.set(wheelX,.43,wheelZ);
+group.add(wheel);
 }
 const light=new THREE.Mesh(new THREE.BoxGeometry(.38,.18,.08),white);
-light.position.set(x,.95,-2.07);group.add(light);
+light.position.set(wheelX,.95,-2.07);
+group.add(light);
 const tail=new THREE.Mesh(new THREE.BoxGeometry(.38,.2,.08),material(0xff1717));
-tail.position.set(x,.95,2.07);group.add(tail);
+tail.position.set(wheelX,.95,2.07);
+group.add(tail);
 }
-if(index%2===0){
+
+if(index%2===0) {
 const spoiler=new THREE.Mesh(new THREE.BoxGeometry(2,.12,.3),material(0x111111));
-spoiler.position.set(0,1.55,1.85);group.add(spoiler);
+spoiler.position.set(0,1.55,1.85);
+group.add(spoiler);
 }
 return group;
 }
 
 const player=makeCar(0xe51b35,0);
 scene.add(player);
-let traffic=[];
-for(let i=0;i<5;i++){
-const enemy=makeCar([0x1475df,0xf2f2f2,0x21a878,0x222222,0xe7a51c][i],i);
+
+const traffic=[];
+const trafficColors=[0x1475df,0xf2f2f2,0x21a878,0x222222,0xe7a51c];
+for(let i=0;i<5;i++) {
+const enemy=makeCar(trafficColors[i],i);
 enemy.position.set([-6,-3,3,6][i%4],0,-120-i*110);
-scene.add(enemy);traffic.push(enemy);
+scene.add(enemy);
+traffic.push(enemy);
 }
 
-let speed=0,distance=0,elapsed=0,active=false,camMode=0;
-let x=0,steer=0,gas=false,brake=false,crashed=false;
-const keys={};
-addEventListener('keydown',e=>{
-keys[e.key.toLowerCase()]=true;
-if(e.key.toLowerCase()==='c')switchCamera();
+function applyPlayerPaint() {
+const color=new THREE.Color(data.paint || '#e51b35');
+player.children.forEach(child=>{
+if(child.material && child.material.color && child.geometry.type==='BoxGeometry') {
+if(child.position.y>.6 && child.position.y<1.3) child.material.color.copy(color);
+}
 });
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-
-function hold(id,fn){
-const el=document.getElementById(id);
-el.addEventListener('pointerdown',e=>{e.preventDefault();fn(true)});
-el.addEventListener('pointerup',()=>fn(false));
-el.addEventListener('pointerleave',()=>fn(false));
-el.addEventListener('pointercancel',()=>fn(false));
 }
-hold('gas',v=>gas=v);hold('brake',v=>brake=v);
-hold('left',v=>steer=v?-1:0);hold('right',v=>steer=v?1:0);
+applyPlayerPaint();
 
-function switchCamera(){camMode=1-camMode;}
-document.getElementById('camera').onclick=switchCamera;
+function switchCamera() { camMode=1-camMode; }
 
-function startRace(n){
-level=n;speed=0;distance=0;elapsed=0;x=0;crashed=false;
+function startRace(n) {
+level=n;
+speed=0;distance=0;elapsed=0;x=0;
+gas=false;brake=false;steer=0;
 traffic.forEach((e,i)=>e.position.set([-6,-3,3,6][i%4],0,-120-i*110));
 player.position.set(0,0,0);
-document.getElementById('levelhud').textContent=n;
-document.getElementById('menu').style.display='none';
-document.getElementById('hud').style.display='block';
-document.getElementById('controls').style.display='flex';
-document.getElementById('result').style.display='none';
-document.getElementById('message').textContent='3... 2... 1... GO!';
-setTimeout(()=>document.getElementById('message').textContent='',1300);
+$('levelhud').textContent=n;
+$('menu').style.display='none';
+$('hud').style.display='block';
+$('controls').style.display='flex';
+$('result').style.display='none';
+$('message').textContent='3... 2... 1... GO!';
+setTimeout(()=>$('message').textContent='',1300);
 active=true;
 }
-let last=performance.now();
-function animate(now){
-requestAnimationFrame(animate);
-const dt=Math.min((now-last)/1000,.05);last=now;
-if(active){
-elapsed+=dt;
-let forward=gas||keys['w']||keys['arrowup'];
-let stop=brake||keys['s']||keys['arrowdown']||keys[' '];
-if(forward)speed+=45*dt;
-else speed-=12*dt;
-if(stop)speed-=85*dt;
-speed=THREE.MathUtils.clamp(speed,0,260+(data.engine-1)*10);
-let direction=steer+(keys['a']||keys['arrowleft']?-1:0)+(keys['d']||keys['arrowright']?1:0);
-x+=direction*dt*(3+speed/35)*(1+(data.handling-1)*.12);
-x=THREE.MathUtils.clamp(x,-7.7,7.7);
-player.position.x=x;player.rotation.y=-direction*.12;
-distance+=speed*dt/3.6;
 
-trees.forEach(t=>{t.position.z+=speed*dt*.65;if(t.position.z>25)t.position.z-=1400;});
-traffic.forEach(e=>{
-e.position.z+=speed*dt*.65+10*dt;
-if(e.position.z>12){e.position.z=-450-Math.random()*300;e.position.x=[-6,-3,3,6][Math.floor(Math.random()*4)];}
-if(Math.abs(e.position.z)<3.5&&Math.abs(e.position.x-x)<2.1){
-speed=Math.max(0,speed-100*dt);
-}
-});
-document.getElementById('speed').textContent=Math.round(speed);
-document.getElementById('distance').textContent=Math.floor(distance);
-
-if(camMode===0){
-camera3.position.lerp(new THREE.Vector3(x,4.5,8.5),.09);
-camera3.lookAt(x,1,-12);
-}else{
-camera3.position.set(x,1.55,-.1);
-camera3.lookAt(x,1,-25);
-}
-
-const m=missions[level-1];
-let completed=m.type==='speed'?speed>=m.target:distance>=m.target;
-if(completed)finish(true);
-else if(elapsed>90)finish(false);
-}
-renderer.render(scene,camera3);
-}
-requestAnimationFrame(animate);
-
-function finish(win){
+function finish(win) {
 active=false;
-let reward=win?missions[level-1].reward:0;
-if(win&&!data.completed.includes(level)){
+gas=false;brake=false;steer=0;
+const reward=win?missions[level-1].reward:0;
+if(win&&!data.completed.includes(level)) {
 data.completed.push(level);
 data.money+=reward;
 data.unlocked=Math.min(10,Math.max(data.unlocked,level+1));
 save();
 }
-document.getElementById('resulttitle').textContent=win?'MISSION COMPLETE!':'MISSION FAILED';
-document.getElementById('resulttext').textContent=win?'You earned $'+reward:'Try again and complete the objective!';
-document.getElementById('result').style.display='flex';
+$('resulttitle').textContent=win?'MISSION COMPLETE!':'MISSION FAILED';
+$('resulttext').textContent=win?'You earned $'+reward:'Try again and complete the objective!';
+$('result').style.display='flex';
 }
-function backToCareer(){
-document.getElementById('result').style.display='none';
-document.getElementById('hud').style.display='none';
-document.getElementById('controls').style.display='none';
-document.getElementById('menu').style.display='flex';
+
+function backToCareer() {
+$('result').style.display='none';
+$('hud').style.display='none';
+$('controls').style.display='none';
+$('menu').style.display='flex';
 page('career');
 }
-function upgrade(type){
-if(data[type]>=5)return alert('Maximum upgrade!');
-if(data.money<500)return alert('Not enough money!');
-data.money-=500;data[type]++;save();
+
+function hold(id,fn) {
+const el=$(id);
+el.addEventListener('pointerdown',e=>{
+e.preventDefault();
+el.setPointerCapture(e.pointerId);
+fn(true);
+});
+const release=e=>{e.preventDefault();fn(false);};
+el.addEventListener('pointerup',release);
+el.addEventListener('pointercancel',release);
+el.addEventListener('lostpointercapture',()=>fn(false));
 }
-window.upgrade=upgrade;
-function resize(){
+hold('gas',v=>gas=v);
+hold('brake',v=>brake=v);
+hold('left',v=>steer=v?-1:0);
+hold('right',v=>steer=v?1:0);
+
+document.addEventListener('keydown',e=>{
+keys[e.key.toLowerCase()]=true;
+if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+if(e.key.toLowerCase()==='c')switchCamera();
+});
+document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+window.addEventListener('blur',()=>{
+Object.keys(keys).forEach(k=>keys[k]=false);
+gas=false;brake=false;steer=0;
+});
+
+document.addEventListener('click',e=>{
+const b=e.target.closest('button');
+if(!b)return;
+if(b.dataset.page) page(b.dataset.page);
+if(b.dataset.race) startRace(Number(b.dataset.race));
+if(b.dataset.upgrade) upgrade(b.dataset.upgrade);
+switch(b.dataset.action) {
+case 'previous-car':changeCar(-1);break;
+case 'next-car':changeCar(1);break;
+case 'select-car':selectCar();break;
+case 'camera':switchCamera();break;
+case 'continue':backToCareer();break;
+}
+});
+
+$('paint').addEventListener('input',e=>{
+data.paint=e.target.value;
+applyPlayerPaint();
+});
+
+function resize() {
 camera3.aspect=innerWidth/innerHeight;
 camera3.updateProjectionMatrix();
 renderer.setSize(innerWidth,innerHeight);
 }
-addEventListener('resize',resize);
-update();changeCar(0);
+window.addEventListener('resize',resize);
+
+let last=performance.now();
+function animate(now) {
+requestAnimationFrame(animate);
+const dt=Math.min((now-last)/1000,.05);
+last=now;
+
+if(active) {
+elapsed+=dt;
+const forward=gas||keys.w||keys.arrowup;
+const stop=brake||keys.s||keys.arrowdown||keys[' '];
+
+if(forward)speed+=45*dt;
+else speed-=12*dt;
+if(stop)speed-=85*dt;
+
+speed=THREE.MathUtils.clamp(speed,0,260+(data.engine-1)*10);
+
+const direction=steer+
+((keys.a||keys.arrowleft)?-1:0)+
+((keys.d||keys.arrowright)?1:0);
+
+x+=direction*dt*(3+speed/35)*(1+(data.handling-1)*.12);
+x=THREE.MathUtils.clamp(x,-7.7,7.7);
+
+player.position.x=x;
+player.rotation.y=-direction*.12;
+distance+=speed*dt/3.6;
+
+trees.forEach(t=>{
+t.position.z+=speed*dt*.65;
+if(t.position.z>25)t.position.z-=1400;
+});
+
+traffic.forEach(e=>{
+e.position.z+=speed*dt*.65+10*dt;
+if(e.position.z>12) {
+e.position.z=-450-Math.random()*300;
+e.position.x=[-6,-3,3,6][Math.floor(Math.random()*4)];
+}
+if(Math.abs(e.position.z)<3.5&&Math.abs(e.position.x-x)<2.1) {
+speed=Math.max(0,speed-100*dt);
+}
+});
+
+$('speed').textContent=Math.round(speed);
+$('distance').textContent=Math.floor(distance);
+
+if(camMode===0) {
+camera3.position.lerp(new THREE.Vector3(x,4.5,8.5),.09);
+camera3.lookAt(x,1,-12);
+} else {
+camera3.position.set(x,1.55,-.1);
+camera3.lookAt(x,1,-25);
+}
+
+const m=missions[level-1];
+const completed=m.type==='speed'?speed>=m.target:distance>=m.target;
+if(completed)finish(true);
+else if(elapsed>90)finish(false);
+}
+
+renderer.render(scene,camera3);
+}
+requestAnimationFrame(animate);
+
+update();
+showCar();
+$('notice').textContent='PC: WASD / ARROWS · SPACE: BRAKE · C: CAMERA';
 </script>
 </body>
 </html>
